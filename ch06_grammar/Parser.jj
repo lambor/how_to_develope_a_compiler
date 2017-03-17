@@ -202,3 +202,94 @@ typeref(): {}
 	 | "(" param_typerefs() ")"
 	)*
 }
+
+typeref_base(): {}
+{
+	<VOID>
+	| <CHAR>
+	| <SHORT>
+	| <INT>
+	| <LONG>
+	| LOOKAHEAD(2) <UNSIGNED> <CHAR>
+	| LOOKAHEAD(2) <UNSIGNED> <SHORT>
+	| LOOKAHEAD(2) <UNSIGNED> <INT>
+	| <UNSIGNED> <LONG>
+	| <STRUCT> <IDENTIFIER>
+	| <UNION> <IDENTIFIER>
+	| LOOKAHEAD({isType(getToken(1).image)}) <IDENTIFIER>
+}
+
+//statments
+stmts(): {}
+{
+	(stmt())*
+}
+
+stmt(): {}
+{
+	( 
+	";"
+	| LOOKAHEAD(2) labeled_stmt()
+	| expr() ";"
+	| block()
+	| if_stmt()
+	| while_stmt()
+	| dowhile_stmt()
+	| for_stmt()
+	| switch_stmt()
+	| break_stmt()
+	| continue_stmt()
+	| goto_stmt()
+	| return_stmt()
+	)
+}
+
+//if condition statment
+if_stmt(): {}
+{
+	<IF> "(" expr() ")" stmt() [LOOKAHEAD(1) <ELSE> stmt()]
+}
+
+//while loop statment
+while_stmt(): {}
+{
+	<WHILE> "(" expr() ")" stmt()
+}
+
+//for loop statment
+for_stmt(): {}
+{
+	<FOR> "(" [expr()] ";" [expr()] ";" [expr()] ")" stmt()
+}
+
+//break statment
+break_stmt(): {}
+{
+	<BREAK> ";"
+}
+
+//return statment
+return_stmt(): {}
+{
+	LOOKAHEAD(2) <RETURN> ";"
+	| <RETURN> expr() ";"
+}
+
+expr(): {}
+{
+	LOOKAHEAD(term() "=")
+	term() "=" expr()
+	| LOOKAHEAD(term() opassign_op())
+	term() opassign_op() expr()
+	| expr10()
+}
+
+opassign_op(): {}
+{
+	( 
+	"+="
+	| "-="
+	| "*="
+	| "/="
+	| ""
+}
